@@ -36,15 +36,16 @@ ORIGINS = list(map(lambda x: { 'label': x, 'value': x }, origins))
     Output(component_id='flights-per-month', component_property='figure'),
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
-    Input(component_id='destination', component_property='value')
+    Input(component_id='destination', component_property='value'),
+    Input(component_id='delayed-flights', component_property='clickData')
 )
-def flights_per_month(months=None, origins=None, destinations=None):
+def flights_per_month(months=None, origins=None, destinations=None, click_data=None):
     '''
     Returns a plotly figure, showing the amount of flights per month.
     '''
     df_copy = df.copy()
 
-    flights = filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = filter_df(df_copy, months=months, origins=origins, destinations=destinations, click_data=click_data)
     flights = flights['Date'].value_counts().reset_index()
 
     return px.bar(flights, x='index', y='Date', labels={
@@ -122,7 +123,7 @@ app.layout = html.Div(className='container p-3', children=[
     ]),
     html.Div(className='row pb-3', children=[
         html.Div(className='col-6', children=[
-            build_card(title='Delayed flights', children=[
+            build_card(title='Flight statusses', children=[
                 dcc.Graph(id='delayed-flights')
             ])
         ]),

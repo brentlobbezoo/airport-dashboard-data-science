@@ -1,6 +1,6 @@
 import pandas as pd
 
-def filter_df(df, months=None, origins=None, destinations=None):
+def filter_df(df, months=None, origins=None, destinations=None, click_data=None):
     '''
     Filter the dataframe
     '''
@@ -14,6 +14,9 @@ def filter_df(df, months=None, origins=None, destinations=None):
 
     if origins:
         df_copy = df_copy[df_copy.Origin.isin(origins)]
+
+    if click_data:
+        print(click_data)
 
     return df_copy
 
