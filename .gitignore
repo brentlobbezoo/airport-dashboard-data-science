@@ -1,2 +1,4 @@
 venv/
 project/node_modules/
+__pycache__/
+data.csv

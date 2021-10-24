@@ -11,12 +11,16 @@ const scripts = [
     './js/*.js'
 ]
 
-function compileSass() {
+gulp.task('styles', function() {
     return gulp.src(styles)
         .pipe(sass().on('error', sass.logError))
         .pipe(cleanCSS())
         .pipe(rename('main.css'))
         .pipe(gulp.dest(buildpath));
-}
+});
 
-exports.styles = compileSass;
+gulp.task('watch', function() {
+    gulp.watch(styles, gulp.series('styles'));
+
+    return;
+});
