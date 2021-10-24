@@ -10,7 +10,7 @@ from dash import html
 from dash.dependencies import Input, Output
 
 from builder import build_card
-from utils import filter_df
+from utils import filter_df, clean_df
 from controls import MONTHS
 
 app = dash.Dash(__name__)
@@ -18,9 +18,8 @@ app = dash.Dash(__name__)
 # Handling DataFrame
 df = pd.read_csv(os.path.join(os.getcwd(), 'data.csv'))
 
-df['Date'] = pd.to_datetime(df.Month.astype(str) + '/' + df.DayofMonth.astype(str) + '/' + df.Year.astype(str))
-# df['Date']= pd.to_datetime(df['Date'], format='%Y-%m-%d')
-df = df.drop(columns=['Year', 'Month', 'DayofMonth'])
+# Filter DataFrame
+df = clean_df(df)
 
 # Extending controls
 destinations = pd.unique(df['Dest'].values.ravel())
@@ -66,11 +65,11 @@ def delayed_flights(months=None, origins=None, destinations=None):
     df_copy = df.copy()
 
     flights = filter_df(df_copy, months=months, origins=origins, destinations=destinations)
-    flights = flights['Date'].value_counts().reset_index()
+    flights = flights['Status'].value_counts().reset_index()
 
-    return px.bar(flights, x='index', y='Date', labels={
-        'index': 'Months',
-        'Date': 'Amount of flights',
+    return px.pie(flights, values='Status', names='index', labels={
+        'index': 'Status',
+        'Status': 'Amount',
     })
 
 # Rendering the layout
