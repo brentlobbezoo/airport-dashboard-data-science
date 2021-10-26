@@ -1,38 +1,24 @@
 import os
 import pandas as pd
 
-airports = pd.read_csv(os.path.join(os.getcwd(), 'airports.csv'))
+airports = pd.read_csv(os.path.join(os.getcwd(), '..', 'airports.csv'))
 
 df = pd.read_csv(os.path.join(os.getcwd(), '..', 'data.csv'))
 
-destinations_lat = []
-destinations_long = []
-origins_lat = []
-origins_long = []
+df['DestCoords'] = ''
+df['OrigCoords'] = ''
 
-for destination in df['Dest']:
-    airport = airports[airports.Code.isin([destination])]
+for index, row in df.iterrows():
+    dest = airports[airports.code.isin([row['Dest']])]
+    org = airports[airports.code.isin([row['Origin']])]
 
-    if not airport.empty:
-        destinations_lat.append(airport['Lat'].values[0])
-        destinations_long.append(airport['Long'].values[0])
-    else:
-        destinations_lat.append(0)
-        destinations_long.append(0)
+    if not dest.empty:
+        df.at[index, 'DestCoords'] = dest['coordinates'].values[0]
 
-for origin in df['Origin']:
-    airport = airports[airports.Code.isin([origin])]
+    if not org.empty:
+        df.at[index, 'OrigCoords'] = org['coordinates'].values[0]
 
-    if not airport.empty:
-        origins_lat.append(airport['Lat'].values[0])
-        origins_long.append(airport['Long'].values[0])
-    else:
-        origins_lat.append(0)
-        origins_long.append(0)
+    print(index)
 
-df['Dest_Lat'] = destinations_lat
-df['Dest_Lng'] = destinations_long
-df['Origin_Lat'] = origins_lat
-df['Origin_Lng'] = origins_long
-
-df.to_csv('x.csv')
+df.drop(columns=['Unnamed: 0'])
+df.to_csv('data2.csv')

@@ -28,7 +28,7 @@ def clean_df(df):
     # Add date as datetime to dataset
     df['Date'] = pd.to_datetime(df.Month.astype(str) + '/' + df.DayofMonth.astype(str) + '/' + df.Year.astype(str))
 
-    # Create a "status" column, idea from "ADRIÁN VERA"
+    # Create a "status" column, idea from "ADRIÁN VERA" (https://www.kaggle.com/adveros/flight-delay-eda-exploratory-data-analysis)
     for dataset in df:
         df.loc[df['ArrDelay'] <= 15, 'Status'] = 'On-time'
         df.loc[df['ArrDelay'] >= 15, 'Status'] = 'Slightly delayed'
