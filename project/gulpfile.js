@@ -5,14 +5,14 @@ const cleanCSS = require('gulp-clean-css');
 
 const buildpath = './../assets/'
 const styles = [
-    './scss/global.scss'
+    './scss/*.scss'
 ]
 const scripts = [
     './js/*.js'
 ]
 
 gulp.task('styles', function() {
-    return gulp.src(styles)
+    return gulp.src('./scss/global.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(cleanCSS())
         .pipe(rename('main.css'))

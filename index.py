@@ -23,6 +23,15 @@ app.layout = html.Div(children=[
     ]),
     html.Main(children=[
         html.Div(id='page-content', className='container p-3')
+    ]),
+    html.Div(className='container', children=[
+        html.Footer(className='d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top', children=[
+            html.Div(className='col-12 d-flex align-items-center', children=[
+                html.Span(className='text-muted', children=[
+                    '© Brent Lobbezoo (), Stephan Berende () & Rachid Rahaui ()'
+                ])
+            ])
+        ])
     ])
 ])
 

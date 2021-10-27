@@ -24,3 +24,10 @@ def build_card(title=None, children=[], footer=[]):
         )
 
     return html.Div(className='card', children=card_children)
+
+def build_notification(message='', type='primary'):
+    className='alert alert-{}'.format(type)
+
+    return html.Div(className=className, children=[
+        html.Span(children=['Test'])
+    ])

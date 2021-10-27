@@ -17,9 +17,12 @@ df = modifier.clean_df(df)
 # Extending controls
 destinations = pd.unique(df['Dest'].values.ravel())
 origins = pd.unique(df['Origin'].values.ravel())
+carriers = pd.unique(df['UniqueCarrier'].values.ravel())
 
 destinations.sort()
 origins.sort()
+carriers.sort()
 
 DESTINATIONS = list(map(lambda x: { 'label': x, 'value': x }, destinations))
 ORIGINS = list(map(lambda x: { 'label': x, 'value': x }, origins))
+CARRIERS = list(map(lambda x: { 'label': x, 'value': x }, carriers))
