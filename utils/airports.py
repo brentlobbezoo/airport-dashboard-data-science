@@ -18,7 +18,5 @@ for index, row in df.iterrows():
     if not org.empty:
         df.at[index, 'OrigCoords'] = org['coordinates'].values[0]
 
-    print(index)
-
 df.drop(columns=['Unnamed: 0'])
 df.to_csv('data2.csv')

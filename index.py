@@ -3,7 +3,7 @@ from dash import html
 from dash.dependencies import Input, Output
 
 from app import app
-from apps import overview, relations, lorem_ipsum
+from apps import overview, relations, classification
 
 app.layout = html.Div(children=[
     dcc.Location(id='url', refresh=False),
@@ -15,7 +15,7 @@ app.layout = html.Div(children=[
                     html.Div(className='navbar-nav', children=[
                         dcc.Link('Overview', className='nav-link', href='/'),
                         dcc.Link('Relations', className='nav-link', href='/relations'),
-                        dcc.Link('Lorem ipsum', className='nav-link', href='/lorem-ipsum')
+                        dcc.Link('Classification', className='nav-link', href='/classification')
                     ])
                 ])
             ])
@@ -28,7 +28,7 @@ app.layout = html.Div(children=[
         html.Footer(className='d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top', children=[
             html.Div(className='col-12 d-flex align-items-center', children=[
                 html.Span(className='text-muted', children=[
-                    '© Brent Lobbezoo (), Stephan Berende () & Rachid Rahaui ()'
+                    '© Brent Lobbezoo (7791232), Stephan Berende (1727885) & Rachid Rahaui (6953905)'
                 ])
             ])
         ])
@@ -44,8 +44,8 @@ def display_value(pathname):
         return overview.layout
     elif pathname == '/relations':
         return relations.layout
-    elif pathname == '/lorem-ipsum':
-        return lorem_ipsum.layout
+    elif pathname == '/classification':
+        return classification.layout
     else:
         return '404'
 

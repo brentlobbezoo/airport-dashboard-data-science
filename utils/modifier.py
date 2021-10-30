@@ -15,9 +15,6 @@ def filter_df(df, months=None, origins=None, destinations=None, click_data=None)
     if origins:
         df_copy = df_copy[df_copy.Origin.isin(origins)]
 
-    if click_data:
-        print(click_data)
-
     return df_copy
 
 def clean_df(df):
@@ -42,7 +39,9 @@ def clean_df(df):
         'Month',
         'DayofMonth',
         'Diverted',
-        'Cancelled'
+        'Cancelled',
+        'Unnamed: 0',
+        'Unnamed: 0.1'
     ])
 
     return df

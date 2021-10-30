@@ -16,7 +16,7 @@ from utils import modifier
 layout = [
     html.Div(className='row pb-3', children=[
         html.Div(className='col-3', children=[
-            builder.build_card(title='Filters', children=[
+            builder.build_card(title='Filters', className='h-100', children=[
                 html.Form(className='form', children=[
                     html.Div(className='mb-3', children=[
                         html.Label(className='form-label', children=[
@@ -67,8 +67,15 @@ layout = [
             ])
         ]),
         html.Div(className='col-6', children=[
-            builder.build_card(title='Lorem ipsum', children=[
-
+            builder.build_card(title='Flights per carrier', children=[
+                dcc.Graph(id='flights-per-carrier')
+            ])
+        ])
+    ]),
+    html.Div(className='row pb-3', children=[
+        html.Div(className='col-12', children=[
+            builder.build_card(title='Flights per carriers', children=[
+                dcc.Graph(id='bar-carriers')
             ])
         ])
     ]),
@@ -132,6 +139,25 @@ def flights_per_month(months=None, origins=None, destinations=None):
     })
 
 @app.callback(
+    Output(component_id='bar-carriers', component_property='figure'),
+    Input(component_id='months', component_property='value'),
+    Input(component_id='origin', component_property='value'),
+    Input(component_id='destination', component_property='value'),
+)
+def flights_per_carrier(months=None, origins=None, destinations=None):
+    '''
+    Return a plotly figure, showing the delayed flights per carrier
+    '''
+    df_copy = df.copy()
+
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights['Delayed'] = flights.apply(lambda row: row['ArrDelay'] > 0, axis=1)
+
+    fig = px.histogram(flights, x='UniqueCarrier', color='Delayed')
+
+    return fig
+
+@app.callback(
     Output(component_id='delayed-flights', component_property='figure'),
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
@@ -149,6 +175,26 @@ def delayed_flights(months=None, origins=None, destinations=None):
     return px.pie(flights, values='Status', names='index', labels={
         'index': 'Status',
         'Status': 'Amount',
+    })
+
+@app.callback(
+    Output(component_id='flights-per-carrier', component_property='figure'),
+    Input(component_id='months', component_property='value'),
+    Input(component_id='origin', component_property='value'),
+    Input(component_id='destination', component_property='value')
+)
+def delayed_flights(months=None, origins=None, destinations=None):
+    '''
+    Returns a plotly figure, showing the statusses.
+    '''
+    df_copy = df.copy()
+
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = flights['UniqueCarrier'].value_counts().reset_index()
+
+    return px.pie(flights, values='UniqueCarrier', names='index', labels={
+        'index': 'Carrier',
+        'UniqueCarrier': 'Amount',
     })
 
 @app.callback(
@@ -187,7 +233,11 @@ def flights_map(months=None, origins=None, destinations=None, carrier=None, date
     airports_copy = airports[airports.code.isin(unique_aita)]
     
     if not airports_copy.empty:
-        airports_copy[['lon', 'lat']] = airports_copy['coordinates'].str.split(';', expand=True)
+        results = airports_copy['coordinates'].str.split(';', expand=True)
+        
+        # Copying is necessary here to supress SettingWithCopyWarning
+        airports_copy = airports_copy.copy()
+        airports_copy[['lon', 'lat']] = results
 
         # Add all airports as a marker if there are any
         fig.add_trace(go.Scattergeo(
