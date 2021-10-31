@@ -50,6 +50,26 @@ layout = [
                             multi=True,
                             className='dcc_control'
                         ),
+                    ]),
+                    html.Div(className='mb-3', children=[
+                        html.Label(className='form-label', children=[
+                            'Status'
+                        ]),
+                        dcc.Dropdown(
+                            id='cancelled',
+                            options=[
+                                { 'label': 'All', 'value': 'all' },
+                                { 'label': 'On-time', 'value': 'On-time' },
+                                { 'label': 'Slightly delayed', 'value': 'Slightly delayed' },
+                                { 'label': 'Highly delayed', 'value': 'Highly delayed' },
+                                { 'label': 'Diverted', 'value': 'Diverted' },
+                                { 'label': 'Cancelled', 'value': 'Cancelled' },
+                            ],
+                            value='all',
+                            multi=False,
+                            className='dcc_control',
+                            clearable=False
+                        ),
                     ])
                 ])
             ])
@@ -90,16 +110,6 @@ layout = [
                 html.Form(className='form', children=[
                     html.Div(className='row', children=[
                         html.Div(className='col', children=[
-                            dcc.DatePickerSingle(
-                                id='date',
-                                min_date_allowed=date(2008, 1, 1),
-                                max_date_allowed=date(2008, 12, 31),
-                                initial_visible_month=date(2008, 1, 1),
-                                date=date(2008, 1, 1),
-                                className='datepicker'
-                            ),
-                        ]),
-                        html.Div(className='col', children=[
                             dcc.Dropdown(
                                 id='carrier',
                                 placeholder='Carrier',
@@ -123,14 +133,15 @@ layout = [
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
+    Input(component_id='cancelled', component_property='value'),
 )
-def flights_per_month(months=None, origins=None, destinations=None):
+def flights_per_month(months=None, origins=None, destinations=None, cancelled=None):
     '''
     Returns a plotly figure, showing the amount of flights per month.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
     flights = flights['Date'].value_counts().reset_index()
 
     return px.bar(flights, x='index', y='Date', labels={
@@ -143,14 +154,15 @@ def flights_per_month(months=None, origins=None, destinations=None):
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
+    Input(component_id='cancelled', component_property='value'),
 )
-def flights_per_carrier(months=None, origins=None, destinations=None):
+def flights_per_carrier(months=None, origins=None, destinations=None, cancelled=None):
     '''
     Return a plotly figure, showing the delayed flights per carrier
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
     
     if not flights.empty:
         flights['Delayed'] = flights.apply(lambda row: row['ArrDelay'] > 0, axis=1)
@@ -164,15 +176,16 @@ def flights_per_carrier(months=None, origins=None, destinations=None):
     Output(component_id='delayed-flights', component_property='figure'),
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
-    Input(component_id='destination', component_property='value')
+    Input(component_id='destination', component_property='value'),
+    Input(component_id='cancelled', component_property='value')
 )
-def delayed_flights(months=None, origins=None, destinations=None):
+def delayed_flights(months=None, origins=None, destinations=None, cancelled=None):
     '''
     Returns a plotly figure, showing the statusses.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
     flights = flights['Status'].value_counts().reset_index()
 
     return px.pie(flights, values='Status', names='index', labels={
@@ -184,15 +197,16 @@ def delayed_flights(months=None, origins=None, destinations=None):
     Output(component_id='flights-per-carrier', component_property='figure'),
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
-    Input(component_id='destination', component_property='value')
+    Input(component_id='destination', component_property='value'),
+    Input(component_id='cancelled', component_property='value')
 )
-def delayed_flights(months=None, origins=None, destinations=None):
+def delayed_flights(months=None, origins=None, destinations=None, cancelled=None):
     '''
     Returns a plotly figure, showing the statusses.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
     flights = flights['UniqueCarrier'].value_counts().reset_index()
 
     return px.pie(flights, values='UniqueCarrier', names='index', labels={
@@ -205,26 +219,18 @@ def delayed_flights(months=None, origins=None, destinations=None):
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
+    Input(component_id='cancelled', component_property='value'),
     Input(component_id='carrier',  component_property='value'),
-    Input(component_id='date',  component_property='date')
 )
-def flights_map(months=None, origins=None, destinations=None, carrier=None, date_value=None):
+def flights_map(months=None, origins=None, destinations=None, cancelled=None, carrier=None):
     '''
     Returns a plotly figure, showing a map of flights.
     '''
-    if not carrier or not date_value:
-        return 'Please provide a carrier and date value'
-
-    # Parse date parameter
-    date_value = date.fromisoformat(date_value)
-    date_value = date_value.strftime('%m/%d/%Y')
-
     df_copy = df.copy()
 
     # Filter flights
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
     flights = flights[flights.UniqueCarrier == carrier]
-    flights = flights[flights.Date == date_value]
 
     # Find unique AITA codes
     unique_aita = pd.unique(flights[['Origin', 'Dest']].values.ravel())

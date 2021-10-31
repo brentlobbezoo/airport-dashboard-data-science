@@ -26,8 +26,11 @@ app.layout = html.Div(children=[
     ]),
     html.Div(className='container', children=[
         html.Footer(className='d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top', children=[
-            html.Div(className='col-12 d-flex align-items-center', children=[
-                html.Span(className='text-muted', children=[
+            html.Div(className='col-12 d-flex flex-column align-items-center', children=[
+                html.P(className='text-muted text-center', children=[
+                    'Disclaimer: The dataset used is a reduced dataset. From the original dataset all the cancelled flights have been extracted. Then, from each month 10.000 random selected entries have been added to the dataset with cancelled flights. This resulted in a dataset with 120.633 rows.'
+                ]),
+                html.P(className='text-muted', children=[
                     '© Brent Lobbezoo (7791232), Stephan Berende (1727885) & Rachid Rahaui (6953905)'
                 ])
             ])
