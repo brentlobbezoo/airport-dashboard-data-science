@@ -41,7 +41,6 @@ def clean_df(df):
         'Diverted',
         'Cancelled',
         'Unnamed: 0',
-        'Unnamed: 0.1'
     ])
 
     return df

@@ -1,9 +1,9 @@
 import os
 import pandas as pd
 
-airports = pd.read_csv(os.path.join(os.getcwd(), '..', 'airports.csv'))
+airports = pd.read_csv(os.path.join(os.getcwd(), '..', 'data', 'airports.csv'))
 
-df = pd.read_csv(os.path.join(os.getcwd(), '..', 'data.csv'))
+df = pd.read_csv(os.path.join(os.getcwd(), '..', 'data', 'data.csv'))
 
 df['DestCoords'] = ''
 df['OrigCoords'] = ''

@@ -151,9 +151,12 @@ def flights_per_carrier(months=None, origins=None, destinations=None):
     df_copy = df.copy()
 
     flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations)
-    flights['Delayed'] = flights.apply(lambda row: row['ArrDelay'] > 0, axis=1)
-
-    fig = px.histogram(flights, x='UniqueCarrier', color='Delayed')
+    
+    if not flights.empty:
+        flights['Delayed'] = flights.apply(lambda row: row['ArrDelay'] > 0, axis=1)
+        fig = px.histogram(flights, x='UniqueCarrier', color='Delayed')
+    else:
+        fig = go.Figure()
 
     return fig
 

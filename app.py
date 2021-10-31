@@ -8,8 +8,8 @@ app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
 # Handling DataFrame
-df = pd.read_csv(os.path.join(os.getcwd(), 'data2-reduced.csv'))
-airports = pd.read_csv(os.path.join(os.getcwd(), 'airports.csv'))
+df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'data-reduced.csv'))
+airports = pd.read_csv(os.path.join(os.getcwd(), 'data', 'airports.csv'))
 
 # Filter DataFrame
 df = modifier.clean_df(df)

@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 
 from utils import builder
 
-flights = pd.read_csv(os.path.join(os.getcwd(), 'data2-reduced.csv'))
+flights = pd.read_csv(os.path.join(os.getcwd(), 'data', 'data-reduced.csv'))
 
 # Encode categorical data
 flights['UniqueCarrier'] = LabelEncoder().fit_transform(flights.UniqueCarrier.values)
@@ -30,12 +30,22 @@ flights = flights.drop(columns=[
     'CancellationCode',
     'DestCoords',
     'OrigCoords',
-    'Unnamed: 0',
-    'Unnamed: 0.1'
+    'Unnamed: 0'
 ])
 
-# Drop rows with NaN values
-flights = flights.dropna()
+# Fix NaN values
+flights['ActualElapsedTime'] = flights['ActualElapsedTime'].interpolate(method='linear', limit_direction='both', axis=0) 
+flights['CRSElapsedTime'] = flights['CRSElapsedTime'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['ArrTime'] = flights['ArrTime'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['AirTime'] = flights['AirTime'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['ArrDelay'] = flights['ArrDelay'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['CarrierDelay'] = flights['CarrierDelay'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['WeatherDelay'] = flights['WeatherDelay'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['NASDelay'] = flights['NASDelay'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['LateAircraftDelay'] = flights['LateAircraftDelay'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['SecurityDelay'] = flights['SecurityDelay'].interpolate(method='linear', limit_direction='both', axis=0) 
+flights['TaxiIn'] = flights['TaxiIn'].interpolate(method='linear', limit_direction='both', axis=0)
+flights['TaxiOut'] = flights['TaxiOut'].interpolate(method='linear', limit_direction='both', axis=0)
 
 # Make sure all columns have correct type
 flights['Cancelled'] = flights['Cancelled'].astype('bool')
@@ -206,8 +216,12 @@ def decomposition(method=None, normalization=None):
 
     features = [col for col in flights_copy]
     features.remove('Cancelled')
+
     components = decomposition.fit_transform(flights_copy[features])
     components_df = pd.DataFrame(components, columns=['Component 1', 'Component 2', 'Component 3'])
+
+    flights_copy['MarkerSize'] = flights_copy.apply(lambda row: 3 if row['Cancelled'] == True else 3, axis=1)
+    flights_copy['MarkerColor'] = flights_copy.apply(lambda row: '#FF0000' if row['Cancelled'] == True else '#003166', axis=1)
 
     fig = go.Figure()
 
@@ -218,7 +232,9 @@ def decomposition(method=None, normalization=None):
             z=components_df['Component 3'],
             mode='markers',
             marker=dict(
-                size=1
+                size=1,
+                color=flights_copy['MarkerColor'],
+                opacity=1
             )
         )
     )
