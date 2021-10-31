@@ -1,6 +1,6 @@
 import pandas as pd
 
-def filter_df(df, months=None, origins=None, destinations=None, cancelled=None):
+def filter_df(df, months=None, origins=None, destinations=None, status=None):
     '''
     Filter the dataframe
     '''
@@ -15,11 +15,11 @@ def filter_df(df, months=None, origins=None, destinations=None, cancelled=None):
     if origins:
         df_copy = df_copy[df_copy.Origin.isin(origins)]
 
-    if cancelled:
-        if cancelled == 'all':
+    if status:
+        if status == 'all':
             pass
         else:
-            df_copy = df_copy[df_copy.Status == cancelled]
+            df_copy = df_copy[df_copy.Status == status]
 
     return df_copy
 

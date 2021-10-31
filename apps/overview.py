@@ -56,7 +56,7 @@ layout = [
                             'Status'
                         ]),
                         dcc.Dropdown(
-                            id='cancelled',
+                            id='status',
                             options=[
                                 { 'label': 'All', 'value': 'all' },
                                 { 'label': 'On-time', 'value': 'On-time' },
@@ -94,7 +94,7 @@ layout = [
     ]),
     html.Div(className='row pb-3', children=[
         html.Div(className='col-12', children=[
-            builder.build_card(title='Flights per carriers', children=[
+            builder.build_card(title='Delayed flights per carrier', children=[
                 dcc.Graph(id='bar-carriers')
             ])
         ])
@@ -133,15 +133,15 @@ layout = [
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
-    Input(component_id='cancelled', component_property='value'),
+    Input(component_id='status', component_property='value'),
 )
-def flights_per_month(months=None, origins=None, destinations=None, cancelled=None):
+def flights_per_month(months=None, origins=None, destinations=None, status=None):
     '''
     Returns a plotly figure, showing the amount of flights per month.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, status=status)
     flights = flights['Date'].value_counts().reset_index()
 
     return px.bar(flights, x='index', y='Date', labels={
@@ -154,15 +154,15 @@ def flights_per_month(months=None, origins=None, destinations=None, cancelled=No
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
-    Input(component_id='cancelled', component_property='value'),
+    Input(component_id='status', component_property='value'),
 )
-def flights_per_carrier(months=None, origins=None, destinations=None, cancelled=None):
+def flights_per_carrier(months=None, origins=None, destinations=None, status=None):
     '''
     Return a plotly figure, showing the delayed flights per carrier
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, status=status)
     
     if not flights.empty:
         flights['Delayed'] = flights.apply(lambda row: row['ArrDelay'] > 0, axis=1)
@@ -177,15 +177,24 @@ def flights_per_carrier(months=None, origins=None, destinations=None, cancelled=
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
-    Input(component_id='cancelled', component_property='value')
+    Input(component_id='status', component_property='value')
 )
-def delayed_flights(months=None, origins=None, destinations=None, cancelled=None):
+def flight_statusses(months=None, origins=None, destinations=None, status=None):
     '''
     Returns a plotly figure, showing the statusses.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, status=status)
+
+    if status == 'Cancelled':
+        flights = flights['CancellationCode'].value_counts().reset_index()
+
+        return px.pie(flights, values='CancellationCode', names='index', labels={
+            'index': 'Cancellation Code',
+            'CancellationCode': 'Amount',
+        })
+
     flights = flights['Status'].value_counts().reset_index()
 
     return px.pie(flights, values='Status', names='index', labels={
@@ -198,15 +207,15 @@ def delayed_flights(months=None, origins=None, destinations=None, cancelled=None
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
-    Input(component_id='cancelled', component_property='value')
+    Input(component_id='status', component_property='value')
 )
-def delayed_flights(months=None, origins=None, destinations=None, cancelled=None):
+def delayed_flights_per_carrier(months=None, origins=None, destinations=None, status=None):
     '''
     Returns a plotly figure, showing the statusses.
     '''
     df_copy = df.copy()
 
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, status=status)
     flights = flights['UniqueCarrier'].value_counts().reset_index()
 
     return px.pie(flights, values='UniqueCarrier', names='index', labels={
@@ -219,17 +228,17 @@ def delayed_flights(months=None, origins=None, destinations=None, cancelled=None
     Input(component_id='months', component_property='value'),
     Input(component_id='origin', component_property='value'),
     Input(component_id='destination', component_property='value'),
-    Input(component_id='cancelled', component_property='value'),
+    Input(component_id='status', component_property='value'),
     Input(component_id='carrier',  component_property='value'),
 )
-def flights_map(months=None, origins=None, destinations=None, cancelled=None, carrier=None):
+def flights_map(months=None, origins=None, destinations=None, status=None, carrier=None):
     '''
     Returns a plotly figure, showing a map of flights.
     '''
     df_copy = df.copy()
 
     # Filter flights
-    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, cancelled=cancelled)
+    flights = modifier.filter_df(df_copy, months=months, origins=origins, destinations=destinations, status=status)
     flights = flights[flights.UniqueCarrier == carrier]
 
     # Find unique AITA codes
